@@ -12,89 +12,81 @@ namespace _02_Ladybug
         {
             int fieldSize = int.Parse(Console.ReadLine());
             List<int> field = new List<int>(new int[fieldSize]);
-            List<int> bugs = Console.ReadLine().Split().Select(int.Parse).ToList();
+            int[] bugsPosition = Console.ReadLine().Split().Select(int.Parse).Distinct().ToArray();
 
-            for (int i = 0; i < bugs.Count; i++)
+            for (int i = 0; i < bugsPosition.Length; i++)
             {
-                if (bugs[i] > (field.Count - 1))
+                if (bugsPosition[i] < 0 || bugsPosition[i] > field.Count - 1)
                 {
                     continue;
                 }
-                field[bugs[i]] = 1;
+                field[bugsPosition[i]] = 1;
             }
 
             while (true)
             {
-                string[] cmd = Console.ReadLine().Split();
-                if (cmd[0] == "end")
+                string[] cmdArgs = Console.ReadLine().Split();
+                if (cmdArgs[0] == "end")
                 {
                     break;
                 }
 
-                int index = int.Parse(cmd[0]);
-                int moveCount = int.Parse(cmd[2]);
-                string direction = cmd[1];
+                int index = int.Parse(cmdArgs[0]);
+                string cmd = cmdArgs[1];
+                int movement = int.Parse(cmdArgs[2]);
 
-                if (index > field.Count - 1 || index < 0 || moveCount == 0)
-                {
-                    continue;
-                }
-                if (field[index] == 0)
+                if (index < 0 || index > field.Count - 1 || movement == 0 || field[index] == 0)
                 {
                     continue;
                 }
 
-
-                MoveBugs(field, index, direction, moveCount);
-
+                if ((cmd == "right" && movement > 0) || (cmd == "left" && movement < 0))
+                {
+                    MoveToRight(field, index, movement);
+                }
+                else if ((cmd == "left" && movement > 0) || (cmd == "right" && movement < 0))
+                {
+                    MoveToLeft(field, index, movement);
+                }
             }
 
             Console.WriteLine(string.Join(" ", field));
         }
 
-        private static void MoveBugs(List<int> field, int index, string direction, int moveCount)
+        private static void MoveToLeft(List<int> field, int index, int movement)
         {
-            if ((direction == "right" && moveCount > 0) || (direction == "left" && moveCount < 0))
+            movement = Math.Abs(movement);
+            field[index] = 0;
+
+            if (index - movement >= 0)
             {
-                moveCount = Math.Abs(moveCount);
+                int tryouts = index / movement;
 
-                if (index + moveCount > field.Count - 1)
-                    field[index] = 0;
-                else
+                for (int i = 1; i <= tryouts; i++)
                 {
-                    for (int i = 1; i <= ((field.Count - 1 - index) / moveCount); i++)
+                    if (field[index - movement * i] == 0)
                     {
-                        field[index] = 0;
-
-                        if (field[index + moveCount * i] == 0)
-                        {
-                            field[index + moveCount * i] = 1;
-                            break;
-                        }
+                        field[index - movement * i] = 1;
+                        break;
                     }
                 }
             }
-            else
+        }
+
+        private static void MoveToRight(List<int> field, int index, int movement)
+        {
+            movement = Math.Abs(movement);
+            field[index] = 0;
+
+            if (index + movement <= field.Count - 1)
             {
-                moveCount = Math.Abs(moveCount);
-
-
-                if (index - moveCount < 0)
+                int tryouts = (field.Count - 1 - index) / movement;
+                for (int i = 1; i <= tryouts; i++)
                 {
-                    field[index] = 0;
-                }
-
-                else
-                {
-                    for (int i = 1; i <= index / moveCount; i++)
+                    if (field[index + movement * i] == 0)
                     {
-                        field[index] = 0;
-
-                        if (field[index - moveCount * i] == 0)
-                        {
-                            field[index - moveCount * i] = 1;
-                            break;
-                        }
+                        field[index + movement * i] = 1;
+                        break;
                     }
                 }
             }

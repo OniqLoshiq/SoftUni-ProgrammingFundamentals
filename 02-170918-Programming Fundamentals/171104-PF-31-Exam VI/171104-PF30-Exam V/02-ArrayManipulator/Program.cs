@@ -10,232 +10,219 @@ namespace _02_ArrayManipulator
     {
         static void Main(string[] args)
         {
-            List<int> inputList = Console.ReadLine().Split().Select(int.Parse).ToList();
+            List<int> data = Console.ReadLine().Split().Select(int.Parse).ToList();
 
             while (true)
             {
-                string[] cmd = Console.ReadLine().Split();
-                if (cmd[0] == "end")
+                string[] cmdArgs = Console.ReadLine().Split();
+                if (cmdArgs[0] == "end")
                 {
                     break;
                 }
+                string cmd = cmdArgs[0];
 
-                if (cmd[0] == "exchange")
+                switch (cmd)
                 {
-                    int index = int.Parse(cmd[1]);
-
-                    if (index > inputList.Count - 1 || index < 0)
-                    {
-                        Console.WriteLine("Invalid index");
-                    }
-                    else
-                    {
-                        inputList = GetExchangedList(inputList, index);
-                    }
-                }
-                else if (cmd[1] == "odd")
-                {
-                    bool isOdd = false;
-                    for (int i = 0; i < inputList.Count; i++)
-                    {
-                        if (inputList[i] % 2 == 1)
+                    case "exchange":
+                        int index = int.Parse(cmdArgs[1]);
+                        if (index < 0 || index > data.Count - 1)
                         {
-                            isOdd = true;
-                            break;
+                            Console.WriteLine("Invalid index");
                         }
-                    }
-                    if (isOdd)
-                    {
-                        GetOddIndex(inputList, cmd[0]);
-                    }
-                    else
-                    {
-                        Console.WriteLine("No matches");
-                    }
-                }
-                else if (cmd[1] == "even")
-                {
-                    bool isEven = false;
-                    for (int i = 0; i < inputList.Count; i++)
-                    {
-                        if (inputList[i] % 2 == 0)
+                        else
                         {
-                            isEven = true;
-                            break;
+                            data = ExchangeList(data, index);
                         }
-                    }
-                    if (isEven)
-                    {
-                        GetEvenIndex(inputList, cmd[0]);
-                    }
-                    else
-                    {
-                        Console.WriteLine("No matches");
-                    }
-                }
-                else if (cmd[0] == "first")
-                {
-                    int count = int.Parse(cmd[1]);
-                    if (count > inputList.Count)
-                    {
-                        Console.WriteLine("Invalid count");
-                    }
-                    else
-                    {
-                        GetFirst(inputList, count, cmd[2]);
-                    }
-                }
-                else if (cmd[0] == "last")
-                {
-                    int count = int.Parse(cmd[1]);
-                    GetLast(inputList, count, cmd[2]);
+                        break;
+                    case "max": GetMax(data, cmdArgs); break;
+                    case "min": GetMin(data, cmdArgs); break;
+                    case "first": GetFirst(data, cmdArgs); break;
+                    case "last": GetLast(data, cmdArgs); break;
                 }
             }
-            Console.WriteLine($"[{string.Join(", ", inputList)}]");
+            Console.WriteLine($"[{string.Join(", ", data)}]");
         }
 
-        private static void GetLast(List<int> inputList, int count, string v)
+        private static void GetLast(List<int> data, string[] cmdArgs)
         {
-            if (v == "odd")
+            int count = int.Parse(cmdArgs[1]);
+            string cmd = cmdArgs[2];
+
+            if (count > data.Count)
             {
-                bool isOdd = false;
-                for (int i = 0; i < inputList.Count; i++)
-                {
-                    if (inputList[i] % 2 == 1)
-                    {
-                        isOdd = true;
-                        break;
-                    }
-                }
-                if (isOdd)
-                {
-                    List<int> oddList = inputList.Where(z => z % 2 == 1).ToList();
-                    if (oddList.Count > count)
-                    {
-                        oddList = oddList.Skip(oddList.Count - count).ToList();
-                    }
-
-                    Console.WriteLine($"[{string.Join(", ", oddList)}]");
-
-                }
-                else
-                {
-                    Console.WriteLine("[]");
-                }
+                Console.WriteLine("Invalid count");
             }
             else
             {
-                bool isEven = false;
-                for (int i = 0; i < inputList.Count; i++)
-                {
-                    if (inputList[i] % 2 == 0)
-                    {
-                        isEven = true;
-                        break;
-                    }
-                }
-                if (isEven)
-                {
-                    List<int> evenList = inputList.Where(z => z % 2 == 0).Take(count).ToList();
-                    if (evenList.Count > count)
-                    {
-                        evenList = evenList.Skip(evenList.Count - count).ToList();
-                    }
+                List<int> partOfTheData = new List<int>();
 
-                    Console.WriteLine($"[{string.Join(", ", evenList)}]");
+                if (cmd == "odd")
+                {
+                    partOfTheData = data.Where(x => x % 2 != 0).ToList();
+
+                    if (partOfTheData.Count > count)
+                    {
+                        partOfTheData = partOfTheData.Skip(partOfTheData.Count - count).ToList();
+                    }
                 }
-                else
+                else if (cmd == "even")
+                {
+                    partOfTheData = data.Where(x => x % 2 == 0).ToList();
+
+                    if (partOfTheData.Count > count)
+                    {
+                        partOfTheData = partOfTheData.Skip(partOfTheData.Count - count).ToList();
+                    }
+                }
+
+                if (partOfTheData.Count < 1)
                 {
                     Console.WriteLine("[]");
                 }
+                else
+                {
+                    Console.WriteLine($"[{string.Join(", ", partOfTheData)}]");
+                }
             }
         }
 
-        private static void GetFirst(List<int> inputList, int count, string v)
+        private static void GetFirst(List<int> data, string[] cmdArgs)
         {
-            if (v == "odd")
+            int count = int.Parse(cmdArgs[1]);
+            string cmd = cmdArgs[2];
+
+            if (count > data.Count)
             {
-                bool isOdd = false;
-                for (int i = 0; i < inputList.Count; i++)
+                Console.WriteLine("Invalid count");
+            }
+            else
+            {
+                List<int> partOfTheData = new List<int>();
+
+                if (cmd == "odd")
                 {
-                    if (inputList[i] % 2 == 1)
-                    {
-                        isOdd = true;
-                        break;
-                    }
+                    partOfTheData = data.Where(x => x % 2 != 0).Take(count).ToList();
                 }
-                if (isOdd)
+                else if (cmd == "even")
                 {
-                    List<int> oddList = inputList.Where(z => z % 2 == 1).Take(count).ToList();
-                    Console.WriteLine($"[{string.Join(", ", oddList)}]");
+                    partOfTheData = data.Where(x => x % 2 == 0).Take(count).ToList();
                 }
-                else
+
+                if (partOfTheData.Count < 1)
                 {
                     Console.WriteLine("[]");
                 }
-            }
-            else
-            {
-                bool isEven = false;
-                for (int i = 0; i < inputList.Count; i++)
+                else
                 {
-                    if (inputList[i] % 2 == 0)
+                    Console.WriteLine($"[{string.Join(", ", partOfTheData)}]");
+                }
+            }
+        }
+
+        private static void GetMin(List<int> data, string[] cmdArgs)
+        {
+            string cmd = cmdArgs[1];
+            int minElement = 0;
+
+            if (cmd == "odd")
+            {
+                bool containsOdd = true;
+                for (int i = 0; i < data.Count; i++)
+                {
+                    if (data[i] % 2 != 0)
                     {
-                        isEven = true;
+                        containsOdd = false;
                         break;
                     }
                 }
-                if (isEven)
+                if (containsOdd)
                 {
-                    List<int> evenList = inputList.Where(z => z % 2 == 0).Take(count).ToList();
-                    Console.WriteLine($"[{string.Join(", ", evenList)}]");
+                    Console.WriteLine("No matches");
                 }
                 else
                 {
-                    Console.WriteLine("[]");
+                    minElement = data.LastIndexOf(data.Where(x => x % 2 != 0).Min());
+                    Console.WriteLine(minElement);
+                }
+            }
+            else if (cmd == "even")
+            {
+                bool containsEven = true;
+                for (int i = 0; i < data.Count; i++)
+                {
+                    if (data[i] % 2 == 0)
+                    {
+                        containsEven = false;
+                        break;
+                    }
+                }
+                if (containsEven)
+                {
+                    Console.WriteLine("No matches");
+                }
+                else
+                {
+                    minElement = data.LastIndexOf(data.Where(x => x % 2 == 0).Min());
+                    Console.WriteLine(minElement);
                 }
             }
         }
 
-        private static void GetEvenIndex(List<int> inputList, string v)
+        private static void GetMax(List<int> data, string[] cmdArgs)
         {
-            if (v == "max")
+            string cmd = cmdArgs[1];
+            int maxElement = 0;
+
+            if (cmd == "odd")
             {
-                int maxValue = inputList.Where(z => z % 2 == 0).Max();
-                int maxIndex = inputList.LastIndexOf(maxValue);
-                Console.WriteLine(maxIndex);
+                bool containsOdd = true;
+                for (int i = 0; i < data.Count; i++)
+                {
+                    if (data[i] % 2 != 0)
+                    {
+                        containsOdd = false;
+                        break;
+                    }
+                }
+                if (containsOdd)
+                {
+                    Console.WriteLine("No matches");
+                }
+                else
+                {
+                    maxElement = data.LastIndexOf(data.Where(x => x % 2 != 0).Max());
+                    Console.WriteLine(maxElement);
+                }
             }
-            else
+            else if (cmd == "even")
             {
-                int minValue = inputList.Where(z => z % 2 == 0).Min();
-                int minIndex = inputList.LastIndexOf(minValue); ;
-                Console.WriteLine(minIndex);
+                bool containsEven = true;
+                for (int i = 0; i < data.Count; i++)
+                {
+                    if (data[i] % 2 == 0)
+                    {
+                        containsEven = false;
+                        break;
+                    }
+                }
+                if (containsEven)
+                {
+                    Console.WriteLine("No matches");
+                }
+                else
+                {
+                    maxElement = data.LastIndexOf(data.Where(x => x % 2 == 0).Max());
+                    Console.WriteLine(maxElement);
+                }
             }
         }
 
-        private static void GetOddIndex(List<int> inputList, string v)
+        private static List<int> ExchangeList(List<int> data, int index)
         {
-            if (v == "max")
-            {
-                int maxValue = inputList.Where(z => z % 2 == 1).Max();
-                int maxIndex = inputList.LastIndexOf(maxValue);
-                Console.WriteLine(maxIndex);
-            }
-            else
-            {
-                int minValue = inputList.Where(z => z % 2 == 1).Min();
-                int minIndex = inputList.LastIndexOf(minValue); ;
-                Console.WriteLine(minIndex);
-            }
-
-        }
-
-        private static List<int> GetExchangedList(List<int> inputList, int index)
-        {
-            List<int> temp1 = inputList.Skip(index + 1).ToList();
-            List<int> temp2 = inputList.Take(index + 1).ToList();
-            return inputList = temp1.Concat(temp2).ToList();
-
+            List<int> temp = data.Take(index + 1).ToList();
+            data = data.Skip(index + 1).ToList();
+            data.AddRange(temp);
+            return data;
         }
     }
 }

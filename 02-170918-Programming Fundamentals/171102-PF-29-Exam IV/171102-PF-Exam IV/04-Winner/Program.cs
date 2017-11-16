@@ -11,44 +11,53 @@ namespace _04_Winner
     {
         static void Main(string[] args)
         {
-            string inputTickets = Console.ReadLine();
+            List<string> tickets = Console.ReadLine().Split(new[] { ' ', ',', '\t' }, StringSplitOptions.RemoveEmptyEntries).ToList();
+            string validPattern = @"[@#\$\^]";
 
-            List<string> allTickets = inputTickets.Split(new char[] { ' ', ',' }, StringSplitOptions.RemoveEmptyEntries).ToList();
-
-            foreach (var ticket in allTickets)
+            for (int i = 0; i < tickets.Count; i++)
             {
-                if (ticket.Length != 20)
+                if (tickets[i].Length != 20)
                 {
                     Console.WriteLine("invalid ticket");
-                    continue;
                 }
-                Regex isValidTickets = new Regex(@"([\$#@^]{6,10}?)(.*?)\1");
-
-                Match ticketGroups = isValidTickets.Match(ticket);
-                string leftRightSide = ticketGroups.Groups[1].Value;
-
-                char[] chars = leftRightSide.ToCharArray().Distinct().ToArray();
-
-
-                if (!isValidTickets.IsMatch(ticket) || chars.Length > 1)
+                else if (!Regex.IsMatch(tickets[i], validPattern))
                 {
-                    Console.WriteLine($"ticket \"{ticket}\" - no match");
+                    Console.WriteLine($"ticket \"{tickets[i]}\" - no match");
+                }
+                else if (tickets[i].Distinct().Count() == 1)
+                {
+                    Console.WriteLine($"ticket \"{tickets[i]}\" - 10{tickets[i][0]} Jackpot!");
                 }
                 else
                 {
-                    if (leftRightSide.Length == 10)
+                    string leftSide = new string(tickets[i].Take(10).ToArray());
+                    string rightSide = new string(tickets[i].Skip(10).ToArray());
+                    string pattern = @"(@{6,10}|#{6,10}|\${6,10}|\^{6,10})";
+                    Match matchLeft = Regex.Match(leftSide, pattern);
+                    Match matchRight = Regex.Match(rightSide, pattern);
+
+                    if (matchLeft.Success && matchRight.Success)
                     {
-                        Console.WriteLine($"ticket \"{ticket}\" - 10{leftRightSide[0]} Jackpot!");
+                        string match = matchRight.ToString();
+                        if (matchRight.Length == matchLeft.Length && matchLeft.ToString()[0] == matchRight.ToString()[0])
+                        {
+                            Console.WriteLine($"ticket \"{tickets[i]}\" - {match.Length}{match[0]}");
+                        }
+                        else if (matchLeft.ToString()[0] == matchRight.ToString()[0])
+                        {
+                            if (matchLeft.Length < matchRight.Length)
+                            {
+                                match = matchLeft.ToString();
+                            }
+                            Console.WriteLine($"ticket \"{tickets[i]}\" - {match.Length}{match[0]}");
+                        }
                     }
                     else
                     {
-                        Console.WriteLine($"ticket \"{ticket}\" - {leftRightSide.Length}{leftRightSide[0]}");
+                        Console.WriteLine($"ticket \"{tickets[i]}\" - no match");
                     }
                 }
-
             }
-
-
         }
     }
 }
